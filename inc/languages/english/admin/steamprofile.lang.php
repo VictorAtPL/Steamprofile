@@ -1,11 +1,9 @@
 <?php
 /*
 Plugin Steamprofile
-(c) 2011 by Victor
+(c) 2012 by Victor
 Website: http://www.victor.org.pl/
-Version: v1.2
-License:
-Please read LICENSE_EN.TXT!
+Version: v1.3
 */
 
 $donate = <<<EOT

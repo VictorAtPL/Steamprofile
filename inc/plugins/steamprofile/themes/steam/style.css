@@ -7,13 +7,12 @@
 }
 
 .steamprofile {
-	position: relative;
-	width: 246px;
-	height: 48px;
-	background: #81A2C4;
-	overflow: hidden;
-	margin: 5px;
-	border: 1px solid #0F5C8E;
+    position: relative;
+    width: 246px;
+    height: 48px;
+    background: #3A3A3A url(background.png);
+    overflow: hidden;
+    margin: 4px;
 }
 
 .steamprofile .sp-bg-game,
@@ -46,23 +45,23 @@
 }
 
 .steamprofile .sp-loading {
-	margin: 8px;
-	padding-left: 40px;
-	color: #606060;
-	font-size: 20px;
-	background: transparent url(loading.gif) no-repeat left center;
+    margin: 8px;
+    padding-left: 40px;
+    color: #606060;
+    font-size: 20px;
+    background: transparent url(loading.gif) no-repeat left center;
 }
 
 .steamprofile .sp-error {
-	margin: 4px 8px;
-	padding-left: 22px;
-	color: #cc4444;
-	font-size: 12px;
-	background: transparent url(error.png) no-repeat left center;
+    margin: 4px 8px;
+    padding-left: 22px;
+    color: #cc4444;
+    font-size: 12px;
+    background: transparent url(error.png) no-repeat left center;
 }
 
 .steamprofile:hover {
-	background-color: #EFEFEF;
+    background-color: #313131;
 }
 
 .steamprofile .sp-avatar {
@@ -112,7 +111,7 @@
 
 .steamprofile .sp-offline .sp-info,
 .steamprofile .sp-offline .sp-info a {
-	color: #000000;
+    color: #898989;
 }
 
 .steamprofile .sp-extra {
