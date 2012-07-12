@@ -8,12 +8,20 @@ Full signatures copyrights goes to [BarracudaATA](https://raw.github.com/Barracu
 
 ##	Update:
 
+### older than v1.3
 1.	Deactivate
 2.	Delete inc/plugins/steamprofile.php
 3.	Delete inc/plugins/steamprofile
 4.	Upload new files (overwrite all)
 5.	Change inc/plugins/steamprofile/cache chmod to 777
 6.	Activate
+
+### from v1.3 to v1.4
+1.	Uninstall
+2.	Delete inc/plugins/steamprofile.php
+3.	Delete inc/plugins/steamprofile/cache content
+4.	Upload inc/plugins/steamprofile.php
+5.	Install and activate
 
 ##	Configuration
 
@@ -39,3 +47,11 @@ You may configure signature language in `inc/plugins/steamprofile/steamprofile.x
 *	obsługa jquery (+ noconflict) poprzez hook pre_output_page
 *	rozdzielenie steamprofile i support_class
 *	wdrożenie repozytorium GitHub oraz nowej dokumentacji
+
+###	v1.4 Update release (@12.07.2012 13:19)
+*	dodanie opcji która powoduje wyświetlanie tylko jednej sygnatury dla każdego użytkownika w postach
+	added option which will show only one steam signature per user in postbits
+*	optymalizacja - plugin dąży do skonwertowania dodatkowego pola profilu do steamcommunityid. Dzięki temu nie jest szukany za każdym postem steamID64 użytkownika (zewnętrzne zapytanie do wolnych serwerów steama).
+	optymalization - plugin seeks to convert custom profile field to steamcommunityid. By this, script doesn't search user's steamID64 every post (outside request to slow steam servers).
+*	naprawienie błędu związanego z nie wyświetlaniem ikony do profilu steam na profilach użytkowników.
+	fixed profile icon (link) bug in users' profile.

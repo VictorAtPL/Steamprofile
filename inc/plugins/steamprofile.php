@@ -3,7 +3,7 @@
 Plugin Steamprofile
 (c) 2012 by Victor
 Website: http://www.victor.org.pl/
-Version: v1.3
+Version: v1.4
 */
 
 if(!defined("IN_MYBB"))
@@ -20,8 +20,8 @@ function steamprofile_info()
 	return array(
 		"name"			=> "Steamprofile",
 		"description"	=> $lang->{'steamprofile_description'},
-		"version"		=> "1.3",
-		"compatibility" => "160*",
+		"version"		=> "1.4",
+		"compatibility"	=> "160*",
 		"guid"			=> "bdf2ce8abf1f0ca6f89d1af222e50bfa",
 		
 		"author"		=> "Victor",
@@ -39,19 +39,20 @@ if (defined("IN_ADMINCP"))
 	$sc_steamprofile->setSettingsGDesc($lang->{'steamprofile_settingsgdesc'});
 	$sc_steamprofile->addSetting("fid", NULL, "0", NULL, "text");
 	$sc_steamprofile->addSetting("mode", NULL, "1", NULL, "onoff");
+	$sc_steamprofile->addSetting("unique", NULL, "0", NULL, "onoff");
 	
 	$sc_steamprofile->addTemplateChange("postbit", "{\$post['subject']} {\$post['subject_extra']}</strong>", "{\$post['steamprofile']}", "after");
 	$sc_steamprofile->addTemplateChange("postbit_classic", " class=\"post_body\">", "{\$post['steamprofile']}", "after");
 	$sc_steamprofile->addTemplateChange("headerinclude", "{\$stylesheets}", "<script type=\"text/javascript\" src=\"inc/plugins/steamprofile/steamprofile.js\"></script>", "after");
 
 	$template = <<<EOT
-<div id="pid_steamprofile_{\$post['pid']}" class="steamprofile" style="float: right;" title="{\$steamid64}"></div>
+<div id="pid_steamprofile_{\$post['pid']}" class="steamprofile" style="float: right;" title="{\$sid_in_profile}"></div>
 EOT;
 
 	$sc_steamprofile->addNewTemplate("signature", $template);
 
 	$template = <<<EOT
-<div style="margin-left: 5px;"><a href="http://www.steamcommunity.com/profiles/{\$steamid64}" title="{\$steamid}" target="_blank"><img src="images/steam.png" alt="" /></a></div>
+<div style="margin-left: 5px;"><a href="http://www.steamcommunity.com/profiles/{\$sid_in_profile}" title="{\$sid_in_profile}" target="_blank"><img src="images/steam.png" alt="" /></a></div>
 EOT;
 
 	$sc_steamprofile->addNewTemplate("link", $template);
@@ -120,18 +121,20 @@ function steamprofile_addjquery(&$output)
 
 function steamprofile_process(&$post)
 {
-	global $mybb, $templates;
+	global $mybb, $templates, $alreadydone;
+	
+	if (!$alreadydone)
+	{
+		$alreadydone = array();
+	}
 	
 	$sid_in_profile = trim($post["fid" . $mybb->settings['steamprofile_fid']]);
-
-	if ( ! $xml = steamprofile_getSteamXML($sid_in_profile))
+	
+	if (!check_sid_in_profile($post['uid'], $sid_in_profile) || (in_array($post['uid'], $alreadydone) && $mybb->settings['steamprofile_unique']))
 	{
 		return false;
-	}	
+	}
 	
-	$steamid64 = $xml->steamID64;
-	$steamid = $xml->{"steamID"};
-		
 	if ($mybb->settings['steamprofile_mode'])
 	{
 		eval("\$post['steamprofile'] = \"".$templates->get("steamprofile_signature")."\";");
@@ -140,55 +143,71 @@ function steamprofile_process(&$post)
 	{
 		eval("\$post['user_details'] .= \"".$templates->get("steamprofile_link")."\";");
 	}
+	
+	$alreadydone[] = $post['uid'];
+	return $post;
 }
 
 function steamprofile_profile()
 {
-	global $mybb, $profilefields, $memprofile, $templates;
-	
-	$sid_in_profile = $memprofile["fid" . $mybb->settings['steamprofile_fid']];
 
-	if ( ! $xml = steamprofile_getSteamXML($sid_in_profile))
+	global $mybb, $profilefields, $memprofile, $templates, $userfields;
+	
+	$sid_in_profile = $userfields["fid" . $mybb->settings['steamprofile_fid']];
+
+	if (!check_sid_in_profile($memprofile['uid'], $sid_in_profile))
 	{
 		return false;
 	}
 	
-	$steamid64 = $xml->steamID64;
-	$steamid = $xml->{"steamID"};
+	eval("\$steamprofile_link = \"".$templates->get("steamprofile_link")."\";");
 	
-	eval("\$steamprofile_link .= \"".$templates->get("steamprofile_link")."\";");
-	
-	$profilefields = preg_replace("/{$sid_in_profile}/", $steamprofile_link, $profilefields);
+	$profilefields = preg_replace("/". $sid_in_profile . "/", $steamprofile_link, $profilefields);
 }
 
-function steamprofile_getSteamXML($sid_in_profile)
+function check_sid_in_profile($uid, $sid_in_profile)
 {
-	if ( ! $sid_in_profile)
+	global $mybb, $db;
+	
+	if (!$sid_in_profile)
 	{
 		return false;
 	}
-
-	if (preg_match('#[0-9]{1}:([0-9]{1}):([0-9]+)#', $sid_in_profile, $results))
+	elseif (preg_match('#7656119#', $sid_in_profile))
+	{
+		return $sid_in_profile;
+	}
+	elseif (preg_match('#[0-9]{1}:([0-9]{1}):([0-9]+)#', $sid_in_profile, $results))
 	{
 		$steamcommunityid = bcadd((($results[2] * 2) + $results[1]), '76561197960265728');
 
 		$xml = @simplexml_load_file("http://steamcommunity.com/profiles/".$steamcommunityid."/?xml=1");
-	}
-	elseif (preg_match('#7656119#', $sid_in_profile, $results))
-	{
-		$xml = @simplexml_load_file("http://steamcommunity.com/profiles/".$sid_in_profile."/?xml=1");
-		
 	}
 	else
 	{
 		$xml = @simplexml_load_file("http://steamcommunity.com/id/".$sid_in_profile."/?xml=1");
 	}
 		
-	if ( ! $xml->steamID64)
+	if ($xml->{"steamID64"})
 	{
-		return false;
+		$update_array = array(
+			"fid" . $mybb->settings['steamprofile_fid'] => $xml->{"steamID64"}
+			);
+				
+		$db->update_query("userfields", $update_array, "ufid=" . $uid);			
+		$sid_in_profile = $xml->{"steamID64"};
+		return $sid_in_profile;
 	}
+	/*else
+	{
+		$update_array = array(
+			"fid" . $mybb->settings['steamprofile_fid'] => ""
+			);
+			
+		$db->update_query("userfields", $update_array, "ufid=" . $uid);
+		
+	}*/
 	
-	return $xml;
+	return false;
 }
 ?>
