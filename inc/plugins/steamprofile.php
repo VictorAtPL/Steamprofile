@@ -52,7 +52,7 @@ EOT;
 	$sc_steamprofile->addNewTemplate("signature", $template);
 
 	$template = <<<EOT
-<div style="margin-left: 5px;"><a href="http://www.steamcommunity.com/profiles/{\$sid_in_profile}" title="{\$sid_in_profile}" target="_blank"><img src="images/steam.png" alt="" /></a></div>
+<div style="margin-left: 5px;"><a href="http://www.steamcommunity.com/id/{\$sid_in_profile}" title="{\$sid_in_profile}" target="_blank"><img src="images/steam.png" alt="" /></a></div>
 EOT;
 
 	$sc_steamprofile->addNewTemplate("link", $template);
